@@ -50,7 +50,16 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
     const [selectedStones, setSelectedStones] = useState<StoneSelection>({})
     const [removingStones, setRemovingStones] = useState<StoneSelection>({})
     const [hintMove, setHintMove] = useState<Move | null>(null);
+    const [hasUsedHintThisTurn, setHasUsedHintThisTurn] = useState(false);
+    // const [hasDecrementedThisTurn, setHasDecrementedThisTurn] = useState(false);
 
+    const [hintCount, setHintCount] = useState(() => {
+        if (mode === "PVE") {
+            return { player1: 3, player2: 0, computer: 0 }
+        } else {
+            return { player1: 3, player2: 3, computer: 0 }
+        }
+    })
     const generateHint = useCallback(() => {
         const move = getBestMoveToHint(gameState.piles, gameState.currentPlayer);
         setHintMove(move);
@@ -148,6 +157,11 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         setSelectedStones({})
         setRemovingStones({})
         setHintMove(null);
+        if (mode === "PVE") {
+            setHintCount({ player1: 3, player2: 0, computer: 0 });
+        } else {
+            setHintCount({ player1: 3, player2: 3, computer: 0 });
+        }
     }, [mode, settings])
 
     // Check game end
@@ -193,14 +207,6 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }, [gameState.currentPlayer, gameState.mode, gameState.gameStatus, generateHint]);
 
-    // const makePlayeerMoveAutomatically = useCallback(async () => {
-    //     if (gameState.mode !== "PVE") return; // Chỉ dùng cho PVE
-    //     if (gameState.currentPlayer === "player1" && gameState.gameStatus === "playing" && !gameState.isAnimating) {
-    //         const move = getOptimalMove(gameState.piles, settings.pve.difficulty);
-    //         await executMove(move.pileIndex, move.amount, "player1");
-    //         setGameState((prev) => ({ ...prev, currentPlayer: "computer" }));
-    //     }
-    // }, [gameState.piles, gameState.currentPlayer, gameState.gameStatus, gameState.isAnimating, settings.pve.difficulty, executeMove]);
     const makePlayerMoveAutomatically = useCallback(async () => {
         console.log("makePlayerMoveAutomatically called");
         if (gameState.gameStatus !== "playing" || gameState.isAnimating) return;
@@ -225,6 +231,40 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }, [gameState, settings.pve.difficulty, executeMove]);
 
+    const markHintAsUsed = useCallback(() => {
+        console.log('trừ lượt :_)) lỗi thấy mẹ luôn')
+        setHasUsedHintThisTurn(true)
+    }, []);
+
+    const getCurrentPlayerHintCount = useCallback(() => {
+        return hintCount[gameState.currentPlayer] || 0;
+    }, [hintCount, gameState.currentPlayer]);
+
+    // THÊM MỚI - useEffect để xử lý phần gợi ý khi khi chuyển lượt:
+    useEffect(() => {
+        // Nếu đã sử dụng hint trong lượt trước, trừ hint count
+        if (hasUsedHintThisTurn) {
+            if (gameState.mode === "PVE") {
+                setHintCount((prev) => ({
+                    ...prev,
+                    player1: Math.max(0, prev.player1 - 1)
+                }));
+            } else {
+                // PVP: trừ hint count của người chơi trước đó
+                const previousPlayer = gameState.currentPlayer === "player1" ? "player2" : "player1";
+                setHintCount((prev) => ({
+                    ...prev,
+                    [previousPlayer]: Math.max(0, prev[previousPlayer] - 1)
+                }));
+            }
+        }
+        setHasUsedHintThisTurn(true)
+    }, [gameState.currentPlayer, gameState.mode]) //xem kĩ chỗ này, tại sao lại khong cần hasUsedHintThisTurn 
+
+    useEffect(() => {
+        // Reset cho lượt mới setHasUsedHintThisTurn  hasDecrementedThisTurn
+        setHasUsedHintThisTurn(false);
+    }, [gameState.currentPlayer]);
     return {
         gameState,
         selectedStones,
@@ -234,6 +274,10 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         loadGame,
         resetGame,
         hintMove,
-        makePlayerMoveAutomatically
+        makePlayerMoveAutomatically,
+        hintCount: getCurrentPlayerHintCount(), // Thêm số lượt gợi ý còn lại
+        markHintAsUsed,// Hàm giảm số lượt gợi ý
+        allHintCounts: hintCount,
+        canUseHint: getCurrentPlayerHintCount() > 0,  // có thể xem gợi ý
     }
 }

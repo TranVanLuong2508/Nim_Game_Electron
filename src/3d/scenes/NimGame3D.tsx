@@ -17,7 +17,7 @@ interface NimGame3DProps {
 const NimGame3D = ({ mode, settings, onExitGame, savedGame }: NimGame3DProps) => {
 
     const { gameState, selectedStones, removingStones, handleStoneClick,
-        saveCurrentGame, loadGame, resetGame, hintMove, makePlayerMoveAutomatically, }
+        saveCurrentGame, loadGame, resetGame, hintMove, makePlayerMoveAutomatically, hintCount, allHintCounts, markHintAsUsed, canUseHint, decrementHintCount }
         = useNimGame(mode, settings)
 
     if (savedGame && gameState.id !== savedGame.gameState.id) {
@@ -33,7 +33,7 @@ const NimGame3D = ({ mode, settings, onExitGame, savedGame }: NimGame3DProps) =>
         exportGameToFile(currentSavedGame)
     }
 
-    console.log('check hint: ', hintMove)
+    console.log('check hint count : ', hintCount)
     return (
         <div className="w-full h-screen bg-gradient-to-b from-sky-200 to-blue-100 relative">
             {/* 3D Canvas - điều chỉnh camera cho view hàng dọc */}
@@ -59,6 +59,12 @@ const NimGame3D = ({ mode, settings, onExitGame, savedGame }: NimGame3DProps) =>
                 onResetGame={resetGame}
                 onExitGame={onExitGame}
                 onExportGame={handleExportGame}
+                allHintCounts={allHintCounts}
+                hintCount={hintCount}
+                markHintAsUsed={markHintAsUsed}
+                canUseHint={canUseHint}
+                decrementHintCount={decrementHintCount}
+            // Truyền số lượt gợi ý còn lại
             />
         </div>
     )
