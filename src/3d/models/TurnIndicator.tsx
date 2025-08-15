@@ -20,7 +20,7 @@ const TurnIndicator = ({ position, isActive, color, playerName }: TurnIndicatorP
             meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1
         }
     })
-    const activeColor = color === "blue" ? "#3b82f6" : "#ef4444"
+    const activeColor = color === "blue" ? "#3b82f6" : "#ef4444" // chọn màu khi active đối với mỗi Indicator
     const inactiveColor = "#374151"
     return (
         <group>

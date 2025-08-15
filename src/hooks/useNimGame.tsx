@@ -1,5 +1,5 @@
 import Level from "@/constants/Level";
-import { DEFAULT_PILES, getOptimalMove, isGameOver, getBestMoveToHint } from "@/lib/nimGameLogic";
+import { DEFAULT_PILES, getOptimalMove, isGameOver, getBestMoveToHint, getRandomMove } from "@/lib/nimGameLogic";
 import { getRandomPiles } from "@/lib/random";
 import { saveGame } from "@/lib/storage";
 import type { GameMode, Player } from "@/types/commonType";
@@ -10,8 +10,7 @@ import type { GameSettings, StoneSelection } from "@/types/settings";
 import { useCallback, useEffect, useState } from "react";
 
 export const useNimGame = (mode: GameMode, settings: GameSettings) => {
-    // Ensure we have valid initial piles
-    // dùng để lấy các đống đá ban đầu, nếu không có thì dùng mặc định 
+    //khởi tạo pile ban đầu
     const getInitialPiles = () => {
         if (mode === "PVE") {
             return settings?.pve?.randomPiles && Array.isArray(settings.pve.randomPiles)
@@ -24,6 +23,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }
 
+    //người chơi đầu tiên
     const getFirstPlayer = (): Player => {
         if (mode === "PVE") {
             return settings?.pve?.playerGoesFirst ? "player1" : "computer";
@@ -32,6 +32,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }
 
+    //tạo trạng thái gameState cho trò chơi
     const [gameState, setGameState] = useState<GameState>({
         id: crypto.randomUUID(),
         mode,
@@ -39,7 +40,6 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         currentPlayer: getFirstPlayer(),
         // mode === "PVE" && settings?.pve?.playerGoesFirst ? "player1" : mode === "PVE" ? "computer" : "player1",
         // mode === "PVE" && settings.pve.playerGoesFirst ? "player1" : mode === "PVE" ? "computer" : "player1",
-
         gameStatus: "playing",
         isAnimating: false,
         moveHistory: [],
@@ -60,21 +60,25 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
             return { player1: 3, player2: 3, computer: 0 }
         }
     })
+
+    //tạo gợi ý
     const generateHint = useCallback(() => {
         const move = getBestMoveToHint(gameState.piles, gameState.currentPlayer);
         setHintMove(move);
     }, [gameState.piles, settings.pve.difficulty]);
 
 
+    // thực hiện nước đi
     const executeMove = useCallback(
         async (pileIndex: number, amount: number, player: GameState["currentPlayer"]) => {
             setGameState((prev) => ({ ...prev, isAnimating: true }))
 
-            // Đánh dấu stones sẽ bị xóa (từ bên phải)
+            // Đánh dấu stones sẽ bị xóa (từ dưới lên)
             const stonesToRemove = Array.from({ length: amount }, (_, i) => gameState.piles[pileIndex] - 1 - i)
+            //ví dụ : 5 - 1 - 0, 5 - 1 - 1, 5 - 1 - 2 , ==> [4,3,2]
             setRemovingStones({ [pileIndex]: stonesToRemove })
 
-            await new Promise((resolve) => setTimeout(resolve, 1200))
+            await new Promise((resolve) => setTimeout(resolve, 1500))
 
             const move: Move = {
                 player,
@@ -98,9 +102,11 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         [gameState.piles],
     )
 
+    //click stone
+
     const handleStoneClick = useCallback(
         (pileIndex: number, stoneNumber: number) => {
-            if (gameState.isAnimating || gameState.gameStatus !== "playing") return
+            if (gameState.isAnimating || gameState.gameStatus !== "playing") return // click khii đang trong animation xóa đá thì khong có tác dụng
             if (gameState.mode === "PVE" && gameState.currentPlayer === "computer") return // can't click on computer turn 
 
             // stoneNumber là số lượng stones sẽ lấy (từ 1 đến số stones trong pile)
@@ -120,12 +126,26 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         [gameState.isAnimating, gameState.gameStatus, gameState.mode, gameState.currentPlayer, executeMove],
     )
 
+    //computer move lượt đi của máy
     const makeComputerMove = useCallback(async () => {
         const move = getOptimalMove(gameState.piles, settings.pve.difficulty)
         await executeMove(move.pileIndex, move.amount, "computer")
         setGameState((prev) => ({ ...prev, currentPlayer: "player1" }))
     }, [gameState.piles, settings.pve.difficulty, executeMove])
 
+    useEffect(() => {
+        if (
+            gameState.mode === "PVE" &&
+            gameState.currentPlayer === "computer" &&
+            gameState.gameStatus === "playing" &&
+            !gameState.isAnimating
+        ) {
+            const timer = setTimeout(makeComputerMove, 1500)
+            return () => clearTimeout(timer)
+        }
+    }, [gameState.mode, gameState.currentPlayer, gameState.gameStatus, gameState.isAnimating, makeComputerMove])
+
+    //save game
     const saveCurrentGame = useCallback(() => {
         const savedGame: SavedGame = {
             gameState,
@@ -135,12 +155,15 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         saveGame(savedGame)
     }, [gameState, settings, selectedStones])
 
+    //load game
+
     const loadGame = useCallback((savedGame: SavedGame) => {
         setGameState(savedGame.gameState)
         setSelectedStones(savedGame.selectedStones)
         setRemovingStones({})
     }, [])
 
+    //reset game
     const resetGame = useCallback(() => {
         setGameState({
             id: crypto.randomUUID(),
@@ -174,18 +197,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }, [gameState.piles, gameState.currentPlayer, gameState.gameStatus])
 
-    // Computer move
-    useEffect(() => {
-        if (
-            gameState.mode === "PVE" &&
-            gameState.currentPlayer === "computer" &&
-            gameState.gameStatus === "playing" &&
-            !gameState.isAnimating
-        ) {
-            const timer = setTimeout(makeComputerMove, 1500)
-            return () => clearTimeout(timer)
-        }
-    }, [gameState.mode, gameState.currentPlayer, gameState.gameStatus, gameState.isAnimating, makeComputerMove])
+    // 
 
     // Sinh gợi ý khi tới lượt người chơi
     useEffect(() => {
@@ -221,7 +233,8 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         } else if (gameState.mode === "PVP") {
             // Ở PVP, nếu lượt người chơi mà timeout thì bot tự làm nước đi tối ưu cho người đó
             if (gameState.currentPlayer === "player1" || gameState.currentPlayer === "player2") {
-                const move = getOptimalMove(gameState.piles, Level.medium.value); // Hoặc lấy difficulty khác nếu có
+                // const move = getOptimalMove(gameState.piles, Level.medium.value); // Hoặc lấy difficulty khác nếu có
+                const move = getRandomMove(gameState.piles); // Ngẫu nhiên
                 await executeMove(move.pileIndex, move.amount, gameState.currentPlayer);
                 setGameState((prev) => ({
                     ...prev,
@@ -231,10 +244,14 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }, [gameState, settings.pve.difficulty, executeMove]);
 
+    //đánh dấu có dùng gợi ý để khi chuyển lượt rồi trừ
+
     const markHintAsUsed = useCallback(() => {
         console.log('trừ lượt :_)) lỗi thấy mẹ luôn')
         setHasUsedHintThisTurn(true)
     }, []);
+
+    //lấy số hint còn lại của player hiện tại
 
     const getCurrentPlayerHintCount = useCallback(() => {
         return hintCount[gameState.currentPlayer] || 0;
@@ -262,7 +279,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
     }, [gameState.currentPlayer, gameState.mode]) //xem kĩ chỗ này, tại sao lại khong cần hasUsedHintThisTurn 
 
     useEffect(() => {
-        // Reset cho lượt mới setHasUsedHintThisTurn  hasDecrementedThisTurn
+        // Reset cho lượt mới setHasUsedHintThisTurn 
         setHasUsedHintThisTurn(false);
     }, [gameState.currentPlayer]);
     return {

@@ -29,30 +29,36 @@ const optimalMoveChances = {
     hard: 1
 }
 
+//lấy % cơ hội đi ngẫu nhiên theo level
+
 const getOptimalMoveChance = (level: Difficulty) => {
-    return optimalMoveChances[level] ?? 0
+    return optimalMoveChances[level] ?? 0  //nullish coalescing operator ==> nếu optimalMoveChances[level] = null hoặc undefined thì retur  0
 }
+
+//điều kiện để đi tối ưu hay là ngẫu nhiên
 
 const shouldUseRandomMove = (level: Difficulty) => {
     const perCentOptimalMove = getOptimalMoveChance(level)
-    if (Math.random() > perCentOptimalMove) {
+    if (Math.random() > perCentOptimalMove) { //nếu random > % đi tối ưu thì đi random
         return true
     } else {
         return false
     }
 }
 
+//đi nước đi tối ưu nếu thỏa điều kiện random
+
 export const getOptimalMove = (piles: number[], difficulty: Difficulty = "easy"): Move => {
     const nimSum = calculateNimSum(piles)
-    const availablePiles = piles
-        .map((pile, index) => pile !== 0 ? index : -1)
+    const availablePiles = piles // index của các pile có số lượng đá lớn hơn 0
+        .map((pile, index) => pile !== 0 ? index : -1)  // ví dụ: [0,1,-1,-1,4]
         .filter((item) => item !== -1)
-    //losing state
-    if (nimSum === 0) {
+    //Trạng thái thua
+    if (nimSum === 0) { // nim sum = 0 thì đang ở trạng thái thua, sẽ đi random vì không có nước đi tối ưu
         console.log('nimsum == 0: nimSUm ==0 && Random Move ==>', piles)
         return getRandomMove(piles)
     } else {
-        //winning state
+        //Trạng thái có lợi
         const shouldRandomMove = shouldUseRandomMove(difficulty)
 
         if (shouldRandomMove === true) {
@@ -72,7 +78,7 @@ export const getOptimalMove = (piles: number[], difficulty: Difficulty = "easy")
             })
 
             if (optimalPiles.length === 0) {
-                console.warn("Không tìm thấy pile tối ưu")
+                console.log("Không tìm thấy pile tối ưu")
                 return getRandomMove(piles)
             }
 
@@ -90,8 +96,9 @@ export const getOptimalMove = (piles: number[], difficulty: Difficulty = "easy")
     }
 }
 
+//đưa ra gợi ý
 export const getBestMoveToHint = (piles: number[], player: Player): Move => {
-    console.log('check hint pile and player', piles, player)
+    // console.log('check hint pile and player', piles, player)
     const nimSum = calculateNimSum(piles)
     const availablePiles = piles
         .map((pile, index) => pile !== 0 ? index : -1)
@@ -116,7 +123,7 @@ export const getBestMoveToHint = (piles: number[], player: Player): Move => {
         })
 
         if (optimalPiles.length === 0) {
-            console.warn("Không tìm thấy pile tối ưu")
+            console.log("Không tìm thấy pile tối ưu")
             return {
                 ...getRandomMove(piles),
                 player: player
@@ -125,7 +132,7 @@ export const getBestMoveToHint = (piles: number[], player: Player): Move => {
 
         const selectedPile = optimalPiles[randomNumberInRange(0, optimalPiles.length - 1)]
         const amountToMove = piles[selectedPile] - (piles[selectedPile] ^ nimSum)
-        console.log('optimal Move ==>', piles)
+        // console.log('optimal Move ==>', piles, amountToMove)
 
         return {
             player: player,
@@ -136,9 +143,11 @@ export const getBestMoveToHint = (piles: number[], player: Player): Move => {
     }
 }
 
+// xử lý trường hợp đi ngẫu nhiên
 
-const getRandomMove = (piles: number[]): Move => {
+export const getRandomMove = (piles: number[]): Move => {
     const availablePiles = piles.map((stoneCount, index) => ({ stoneCount, index })).filter(({ stoneCount }) => stoneCount > 0)
+    //tạo 1 mảng object có dạng {stoneCount, index}
 
     if (availablePiles.length === 0) {
         return {
@@ -152,6 +161,7 @@ const getRandomMove = (piles: number[]): Move => {
     const randomPile = availablePiles[Math.floor(Math.random() * availablePiles.length)]
     // const amountToMove = Math.floor(Math.random() * randomPile.stoneCount) + 1
     const amountToMove = randomNumberInRange(1, randomPile.stoneCount)
+    console.log('check random move')
 
     return {
         player: "computer",
@@ -160,7 +170,7 @@ const getRandomMove = (piles: number[]): Move => {
         timestamp: new Date(),
     }
 }
-
+//Kiểm tra game kết thúc
 export const isGameOver = (piles: number[]): boolean => {
     return piles.every((pile) => pile === 0)
 }
@@ -170,7 +180,7 @@ export const calculateStonePositions = (
     basePosition: [number, number, number] = [0, 0, 0],
 ): [number, number, number][] => {
 
-    if (!basePosition || basePosition.length !== 3) {
+    if (!basePosition || basePosition.length !== 3) { // basePositions phải có đúng 3 phần tử 
         basePosition = [0, 0, 0]
     }
 
@@ -179,7 +189,7 @@ export const calculateStonePositions = (
     }
 
     const positions: [number, number, number][] = []
-    const stoneSpacing = 0.7 // Khoảng cách giữa các khối đá
+    const stoneSpacing = 0.7 // Khoảng cách giữa các khối đá trong 1 hàng
 
     for (let i = 0; i < stoneCount; i++) {
         const x = basePosition[0]

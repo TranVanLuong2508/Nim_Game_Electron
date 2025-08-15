@@ -11,7 +11,7 @@ import modalVariants from '@/motion/variants/ModalVariants'
 import tabVariants from '@/motion/variants/TabVariants'
 import GameRule from '@/constants/GameRuleContent'
 import type { PVPSettingProps } from '@/types/PropTypes/PVPSettingsProps'
-const PVPGameSetting = ({ isOpen, onClose, onStartGame, updatePVPSettings, settings, mode }: PVPSettingProps) => {
+const PVPGameSetting = ({ isOpen, onClose, onStartGame, updatePVPSettings, settings }: PVPSettingProps) => {
 
     // const [settings, setSettings] = useState<GameSettings>({
     //     difficulty: "easy",

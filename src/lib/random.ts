@@ -2,8 +2,10 @@ import type { Difficulty } from "@/types/commonType";
 import Level from "@/constants/Level";
 
 export const randomNumberInRange = (minNumber: number, maxNumber: number): number => {
-    return Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber; //random from [min-max]
+    return Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber; // lấy giá trị trong đoạn [min-max]
 }
+
+//Random ngẫu nhiên số đá trong mỗi đống, số lượng đống theo level
 
 export const getRandomPiles = (difficulty: Difficulty): number[] => {
     let numPiles, maxStones
@@ -30,6 +32,6 @@ export const getRandomPiles = (difficulty: Difficulty): number[] => {
         const stones = randomNumberInRange(minStone, maxStones)
         piles.push(stones)
     }
-    console.log(';check random pile', difficulty, piles)
+    console.log(';check random piles', difficulty, piles)
     return piles
 }

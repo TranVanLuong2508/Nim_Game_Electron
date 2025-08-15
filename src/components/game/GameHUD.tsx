@@ -25,7 +25,6 @@ interface GameHUDProps {
     onExportGame: () => void
     hintMove: Move | null
     onPlayerTimeout: () => Promise<void>
-    decrementHintCount: () => void
     hintCount: number
     allHintCounts?: { player1: number, player2: number, computer: number }
     markHintAsUsed: () => void,
@@ -34,9 +33,11 @@ interface GameHUDProps {
 
 const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame, hintMove, onPlayerTimeout,
     settings, hintCount, canUseHint, markHintAsUsed, }: GameHUDProps) => {
+
+    const COUNTDOWN_SECONDS = 60
+    const totalStones = gameState.piles.reduce((sum, pile) => sum + pile, 0) //tổng số lương đá trong tất cả các pile
+
     const [hintString, setHintString] = useState("")
-
-
 
     const getPlayerName = (player: Player | null): string => {
         if (gameState.mode === "PVE") {
@@ -45,9 +46,6 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
             return player === "player1" ? settings.pvp.player1Name : settings.pvp.player2Name
     }
 
-    const totalStones = gameState.piles.reduce((sum, pile) => sum + pile, 0) //tổng số lương đá trong tất cả các pile
-    {/* Top Right - Pile Status and Menu */ }
-    const COUNTDOWN_SECONDS = 60
 
     const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
     const countdownRef = useRef<NodeJS.Timeout | null>(null);
@@ -62,6 +60,7 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
     };
 
 
+    //cập nhật hint
     useEffect(() => {
         const getHintMoveString = (mode: GameMode, hint: Move | null) => {
             if (mode === "PVE" && hint !== null) {

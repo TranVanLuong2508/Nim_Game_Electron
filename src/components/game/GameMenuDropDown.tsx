@@ -64,12 +64,12 @@ const GameMenuDropDown = ({ onSaveGame, onExportGame, onResetGame, onExitGame }:
                                 <div className="text-center">Chơi lại</div>
                             </DialogTitle>
                             <DialogDescription>
-                                <div className="text-center">Bạn có muốn lưu game trước khi chơi lại không?</div>
+                                <div className="text-center">Bạn có chắc chắn muốn chơi lại không ?</div>
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter className="flex gap-2">
                             <DialogClose asChild>
-                                <Button variant="outline" onClick={onResetGame}>
+                                <Button variant="outline" >
                                     Hủy
                                 </Button>
                             </DialogClose>

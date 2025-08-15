@@ -1,13 +1,11 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import type { GameSettings } from "@/types/settings"
 import { saveSettings, loadSettings } from "@/lib/storage"
 
 export const useGameSettings = () => {
-    const [settings, setSettings] = useState<GameSettings>(loadSettings())
+    const [settings, setSettings] = useState<GameSettings>(loadSettings()) // load settings khi vừa dùng useGameSettings hook
 
-    useEffect(() => {
+    useEffect(() => { //lưu settings 
         saveSettings(settings)
     }, [settings])
 

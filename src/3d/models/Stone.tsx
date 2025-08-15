@@ -30,20 +30,23 @@ const Stone = ({ position, onClick, isSelected, isRemoving, isClickable = true }
                 //thu nhỏ dần đều đến khi biến mất
                 meshRef.current.scale.setScalar(Math.max(0, meshRef.current.scale.x - 0.03))
             } else if (isHover && isClickable) {
-                //dao động nhẹ theo chiều cao
+                // Dao động nhẹ theo chiều cao (dùng sóng sin)
                 meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 4) * 0.1 + 0.3
                 //phóng to 1.3
                 meshRef.current.scale.setScalar(1.3)
                 // Thêm hiệu ứng xoay nhẹ khi hover
                 meshRef.current.rotation.y = state.clock.elapsedTime * 2
             } else if (isSelected) {
-                //nỏi lên và phóng to 1.2
+                // Nổi cao hơn 0.4
                 meshRef.current.position.y = position[1] + 0.4
+                // Phóng to 1.2 lần
                 meshRef.current.scale.setScalar(1.2)
             } else {
                 //chuyển động về trạng thái ban đầu ( không có sự kiên gì tác đông lên nó)
                 meshRef.current.position.y = THREE.MathUtils.lerp(meshRef.current.position.y, position[1], 0.05)
+                // Trả kích thước về 1 (bình thường)
                 meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, 1, 0.05))
+                // Trả rotation Y về 0
                 meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, 0, 0.05)
             }
         }
@@ -54,7 +57,7 @@ const Stone = ({ position, onClick, isSelected, isRemoving, isClickable = true }
             ref={meshRef}
             position={position}
             castShadow
-            receiveShadow
+            receiveShadow // cho phép đổ bóng
             onPointerOver={() => handlePointerOver()}
             onPointerOut={() => handlePointerGoOut()}
             // onClick={() => {
@@ -62,7 +65,7 @@ const Stone = ({ position, onClick, isSelected, isRemoving, isClickable = true }
             //         onClick()
             //     }
             // }}
-            onContextMenu={(event: ThreeEvent<MouseEvent>) => {
+            onContextMenu={(event: ThreeEvent<MouseEvent>) => { // click chuột phải
                 event.stopPropagation()
                 if (isClickable && onClick) {
                     onClick()
@@ -70,6 +73,7 @@ const Stone = ({ position, onClick, isSelected, isRemoving, isClickable = true }
                 // console.log("chk clckck", event.clientX, event.clientY)
             }}
         >
+            {/* {tạo khối 12 mặt đều, bán kính 0.25} */}
             <dodecahedronGeometry args={[0.25]} />
             <meshStandardMaterial
                 color={
@@ -78,9 +82,10 @@ const Stone = ({ position, onClick, isSelected, isRemoving, isClickable = true }
                             : isHover && isClickable ? StoneColor.hover
                                 : isClickable ? StoneColor.click : StoneColor.noneClick
                 }
+                // {Độ bóng và độ kim loại}
                 roughness={0.2}
                 metalness={0.8}
-                emissive={isRemoving ? "#dc2626" : isSelected ? "#f59e0b" : isHover && isClickable ? "#3b82f6" : "#000000"}
+                // emissive={isRemoving ? "#dc2626" : isSelected ? "#f59e0b" : isHover && isClickable ? "#3b82f6" : "#000000"}
                 emissiveIntensity={isRemoving ? 0.4 : isSelected ? 0.3 : isHover && isClickable ? 0.3 : 0}
             />
         </mesh>

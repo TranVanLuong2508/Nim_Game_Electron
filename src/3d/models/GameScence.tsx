@@ -25,16 +25,18 @@ const GameScence = ({
 
     const safePiles = Array.isArray(piles) ? piles : []
 
+    //vị trí của pile
     const getPilePosition = (index: number): [number, number, number] => {
         const spacing = 2 // Khoảng cách giữa các pile (cột)
         const totalPiles = safePiles.length
-        const startX = -((totalPiles - 1) * spacing) / 2 // Căn giữa tất cả các pile
+        const startX = -((totalPiles - 1) * spacing) / 2 // Căn giữa tất cả các pile lùi lại để mảng pile nằm giữa trục tọa độ
 
         return [startX + index * spacing, 0, -2] // Z = -2 để bắt đầu từ phía trước
     }
     return (
         <>
             <Sky sunPosition={[100, 20, 100]} />
+            {/* {tạo mặt trời với preset là bình minh} */}
             <Environment preset='dawn' />
             <ambientLight intensity={0.6} />
             <directionalLight
@@ -49,27 +51,11 @@ const GameScence = ({
                 shadow-camera-top={15}
                 shadow-camera-bottom={-15}
             />
-            {/* Bright ground - mở rộng để chứa các hàng dọc */}
+            {/* Bàn chơi game, chứa các pile */}
             <mesh rotation={[- Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow >
                 <planeGeometry args={[25, 30]} />
                 <meshStandardMaterial color="#f8fafc" roughness={0.8} />
             </mesh >
-
-            {/* Grid lines để phân biệt các pile - hàng dọc */}
-            {safePiles.map((stones, index) => {
-                const position = getPilePosition(index)
-                const maxStones = Math.max(...safePiles, 5) // Tối thiểu 5 để có đủ không gian
-                return (
-                    <mesh
-                        key={`grid-${index}`}
-                        position={[position[0], -0.49, position[2] + (maxStones * 0.7) / 2]}
-                        rotation={[-Math.PI / 2, 0, 0]}
-                    >
-                        <planeGeometry args={[2, maxStones * 0.7 + 1]} />
-                        <meshStandardMaterial color="#e2e8f0" transparent opacity={0.2} />
-                    </mesh>
-                )
-            })}
 
             <TurnIndicators gameState={gameState} settings={settings} />
 

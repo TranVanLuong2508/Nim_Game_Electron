@@ -17,7 +17,7 @@ interface NimGame3DProps {
 const NimGame3D = ({ mode, settings, onExitGame, savedGame }: NimGame3DProps) => {
 
     const { gameState, selectedStones, removingStones, handleStoneClick,
-        saveCurrentGame, loadGame, resetGame, hintMove, makePlayerMoveAutomatically, hintCount, allHintCounts, markHintAsUsed, canUseHint, decrementHintCount }
+        saveCurrentGame, loadGame, resetGame, hintMove, makePlayerMoveAutomatically, hintCount, allHintCounts, markHintAsUsed, canUseHint }
         = useNimGame(mode, settings)
 
     if (savedGame && gameState.id !== savedGame.gameState.id) {
@@ -63,7 +63,6 @@ const NimGame3D = ({ mode, settings, onExitGame, savedGame }: NimGame3DProps) =>
                 hintCount={hintCount}
                 markHintAsUsed={markHintAsUsed}
                 canUseHint={canUseHint}
-                decrementHintCount={decrementHintCount}
             // Truyền số lượt gợi ý còn lại
             />
         </div>

@@ -5,7 +5,7 @@ import Level from "@/constants/Level";
 const STORAGE_KEYS = {
     SETTINGS: "nim-game-settings",
     SAVED_GAMES: "nim-saved-games",
-    CURRENT_GAME: "nim-current-game",
+    // CURRENT_GAME: "nim-current-game",
 } as const // constant, no change
 
 
@@ -25,7 +25,7 @@ export const defaultSettings: GameSettings = {
 }
 
 
-// convert settings to JSON String and save in localStorgae
+// convert settings to JSON String and save in localStorgae, tải settings lên local
 export const saveSettings = (settings: GameSettings): void => {
     if (typeof window !== "undefined") {
         localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings))
@@ -33,7 +33,7 @@ export const saveSettings = (settings: GameSettings): void => {
 }
 
 
-//read Settings from localStorage
+//read Settings from localStorage, nếu không có thì dùng default
 export const loadSettings = (): GameSettings => {
     if (typeof window === "undefined") return defaultSettings
 
@@ -48,10 +48,11 @@ export const loadSettings = (): GameSettings => {
 
 //save game - json list
 export const saveGame = (savedGame: SavedGame): void => {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined") return // kiểm tra xem có đang chạy trên môi trường trình duyệt hay không
 
     try {
-        const existingGames = loadSavedGames()
+        const existingGames = loadSavedGames() // lấy ra danh sách game đã có
+        //kiểm tra xem game đã được lưu chưa, chưa thì lưu (=id)
         const updatedGames = existingGames.filter((game) => game.gameState.id !== savedGame.gameState.id)
         updatedGames.push(savedGame)
 
@@ -92,18 +93,18 @@ export const deleteSavedGame = (gameId: string): void => {
 //export game to JSON file
 export const exportGameToFile = (savedGame: SavedGame): void => {
     try {
-        const dataStr = JSON.stringify(savedGame, null, 2)
-        const dataBlob = new Blob([dataStr], { type: "application/json" })
-        const url = URL.createObjectURL(dataBlob)
+        const dataStr = JSON.stringify(savedGame, null, 2) //chuyển saved Game thành JSON
+        const dataBlob = new Blob([dataStr], { type: "application/json" }) //chuỗi nhị phân chứa dữ liệu là Blob
+        const url = URL.createObjectURL(dataBlob) //tạo url tạm
 
         const link = document.createElement("a")
         link.href = url
-        link.download = `nim-game-${savedGame.gameState.id}.json`
-        document.body.appendChild(link)
+        link.download = `nim-game-${savedGame.gameState.id}.json` //gợi ý tên file khi tải về
+        document.body.appendChild(link) //đưa thẻ link vào DOM
         link.click()
         document.body.removeChild(link)
 
-        URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url) // hủy url tạm
     } catch (error) {
         console.error("Failed to export game:", error)
     }
@@ -115,7 +116,7 @@ export const importGameFromFile = (file: File): Promise<SavedGame> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
 
-        reader.onload = (event) => {
+        reader.onload = (event) => { //chạy nếu đọc thành công
             try {
                 const result = event.target?.result as string
                 const savedGame = JSON.parse(result) as SavedGame
@@ -126,8 +127,8 @@ export const importGameFromFile = (file: File): Promise<SavedGame> => {
             }
         }
 
-        reader.onerror = () => reject(new Error("Failed to read file"))
-        reader.readAsText(file)
+        reader.onerror = () => reject(new Error("Failed to read file")) //chạy nếu đọc thất bại
+        reader.readAsText(file) //đọc file
     })
 }
 

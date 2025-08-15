@@ -15,16 +15,16 @@ export interface GameState {
     lastModified: Date
 }
 
-export const validateGameState = (state: Partial<GameState>): GameState => {
-    return {
-        id: state.id || crypto.randomUUID(),
-        mode: state.mode || "PVE",
-        piles: Array.isArray(state.piles) ? state.piles : [3, 5, 7, 4],
-        currentPlayer: state.currentPlayer || "player1",
-        gameStatus: state.gameStatus || "playing",
-        isAnimating: state.isAnimating || false,
-        moveHistory: Array.isArray(state.moveHistory) ? state.moveHistory : [],
-        createdAt: state.createdAt || new Date(),
-        lastModified: state.lastModified || new Date(),
-    }
-}
+// export const validateGameState = (state: Partial<GameState>): GameState => {
+//     return {
+//         id: state.id || crypto.randomUUID(),
+//         mode: state.mode || "PVE",
+//         piles: Array.isArray(state.piles) ? state.piles : [3, 5, 7, 4],
+//         currentPlayer: state.currentPlayer || "player1",
+//         gameStatus: state.gameStatus || "playing",
+//         isAnimating: state.isAnimating || false,
+//         moveHistory: Array.isArray(state.moveHistory) ? state.moveHistory : [],
+//         createdAt: state.createdAt || new Date(),
+//         lastModified: state.lastModified || new Date(),
+//     }
+// }

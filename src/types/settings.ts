@@ -22,3 +22,6 @@ export interface GameSettings {
 export interface StoneSelection {
     [pileIndex: number]: number[]
 }
+
+// 0: [1, 3],   // Ở pile 0, chọn viên số 1 và số 3
+// 2: [0]       // Ở pile 2, chọn viên số 0

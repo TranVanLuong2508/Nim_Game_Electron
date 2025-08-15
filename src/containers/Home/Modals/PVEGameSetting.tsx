@@ -16,7 +16,7 @@ import { getRandomPiles } from '@/lib/random'
 
 
 
-const pvp = React.memo(({ isOpen, onClose, onStartGame, updatePVESettings, settings }: PVESettingProps) => {
+const PVEGameSetting = React.memo(({ isOpen, onClose, onStartGame, updatePVESettings, settings }: PVESettingProps) => {
 
     const [activeTab, seActiveTab] = useState<string>("customize")
 
@@ -188,4 +188,4 @@ const pvp = React.memo(({ isOpen, onClose, onStartGame, updatePVESettings, setti
         </AnimatePresence>
     )
 })
-export default pvp
+export default PVEGameSetting
