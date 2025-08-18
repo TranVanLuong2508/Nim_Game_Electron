@@ -80,9 +80,10 @@ const HomePage = ({ onSelectMode, mode, onStartGame, onLoadGame, settings, updat
                         <p className='text-xl md:text-2xl  text-white/70 font-normal'>Trò chơi chiến thuật cổ điển</p>
                         <p className='text-xl md:text-2xl  text-white/70 font-light'>Trải nghiệm 3D</p>
                     </motion.div>
+                    {/* {animation button container} */}
                     <motion.div
                         className="button-container space-y-6 max-w-md mx-auto"
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 1, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
                     >
@@ -148,6 +149,7 @@ const HomePage = ({ onSelectMode, mode, onStartGame, onLoadGame, settings, updat
                                         </motion.div>
                                         <span className='drop-shadow-sm' >{gameButtons.PVEButton.text}</span>
                                     </div>
+                                    {/* {back ground button} */}
                                     <div className="gradient-color-backgound-button">
                                         <motion.div
                                             className=" absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-lg"

@@ -55,14 +55,14 @@ export const getOptimalMove = (piles: number[], difficulty: Difficulty = "easy")
         .filter((item) => item !== -1)
     //Trạng thái thua
     if (nimSum === 0) { // nim sum = 0 thì đang ở trạng thái thua, sẽ đi random vì không có nước đi tối ưu
-        console.log('nimsum == 0: nimSUm ==0 && Random Move ==>', piles)
+        console.log('nimsum == 0: nimSUm ==0 && Random Move ==>', piles,)
         return getRandomMove(piles)
     } else {
         //Trạng thái có lợi
         const shouldRandomMove = shouldUseRandomMove(difficulty)
 
         if (shouldRandomMove === true) {
-            console.log('nimsum !== 0 && shouldRandomMove ==true: Random Move ==>', piles)
+            console.log('nimsum !== 0 && shouldRandomMove ==true: Random Move ==>', piles, "nimsum = ", nimSum,)
             return getRandomMove(piles)
 
         } else {
@@ -84,7 +84,7 @@ export const getOptimalMove = (piles: number[], difficulty: Difficulty = "easy")
 
             const selectedPile = optimalPiles[randomNumberInRange(0, optimalPiles.length - 1)]
             const amountToMove = piles[selectedPile] - (piles[selectedPile] ^ nimSum)
-            console.log('nimsum !== 0 && shouldRandomMove ==false: optimal Move ==>', piles)
+            console.log('nimsum !== 0 && shouldRandomMove ==false: optimal Move ==>', piles, "nimsum = ", nimSum, "amount", amountToMove)
 
             return {
                 player: "computer",
@@ -105,7 +105,7 @@ export const getBestMoveToHint = (piles: number[], player: Player): Move => {
         .filter((item) => item !== -1)
     //losing state
     if (nimSum === 0) {
-        console.log('Random Move ==>', piles)
+        console.log('Random Move hint ==>', piles)
         return {
             ...getRandomMove(piles),
             player: player

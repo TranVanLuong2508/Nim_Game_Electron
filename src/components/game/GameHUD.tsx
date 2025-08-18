@@ -47,8 +47,8 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
     }
 
 
-    const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
-    const countdownRef = useRef<NodeJS.Timeout | null>(null);
+    const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS); // số giây đếm ngược
+    const countdownRef = useRef<NodeJS.Timeout | null>(null); //lưu ID interval để clearInterval khi cần
     const isPlayerTurn =
         gameState.gameStatus === "playing" &&
         (
@@ -75,6 +75,7 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
         setHintString(getHintMoveString(gameState.mode, hintMove))
     }, [hintMove, gameState.mode])
 
+    //đổi lượt chơi
     useEffect(() => {
         if (!isPlayerTurn || gameState.gameStatus !== "playing") {
             setCountdown(COUNTDOWN_SECONDS);
@@ -85,21 +86,24 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
             return;
         }
 
+        //nếu là lượt của ngưởi chơi
         setCountdown(COUNTDOWN_SECONDS);
-        if (countdownRef.current) clearInterval(countdownRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current); //xóa interval cũ
 
+        //đếm hoặc không đếm
         countdownRef.current = setInterval(() => {
             setCountdown((prev) => prev - 1);
         }, 1000);
 
         return () => {
             if (countdownRef.current) {
-                clearInterval(countdownRef.current);
+                clearInterval(countdownRef.current); //clear interval khi depen thay đổi hoặc unmount
                 countdownRef.current = null;
             }
         };
     }, [gameState.currentPlayer, gameState.gameStatus, isPlayerTurn]);
 
+    // đi tự động khi hết thời gian
     useEffect(() => {
         if (countdown === 0) {
             onPlayerTimeout();
@@ -196,7 +200,7 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
                             {gameState.mode === "PVE" ? (
                                 <>
                                     <div
-                                        className={`text-2xl font-bold mb-2 ${gameState.gameStatus === "won" ? "text-green-600" : "text-red-600"
+                                        className={`text-2xl font-bold mb-2"
                                             }`}
                                     >
                                         {gameState.gameStatus === "won"
@@ -206,7 +210,8 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
                                                 : "Ván chơi kết thúc, có thể chơi tiếp"}
                                     </div>
                                     <p className="text-gray-600 text-base italic mt-2 text-center">
-                                        {gameState.gameStatus === "won" ? "Tiếp tục phát huy" : "Cố gắng lần sau nhé"}
+                                        {/* {gameState.gameStatus === "won" ? "Tiếp tục phát huy" : "Cố gắng lần sau nhé"} */}
+                                        Bấm <b>"Chơi lại"</b> ở Menu để tiếp tục
                                     </p>
                                 </>
                             ) : (
@@ -217,7 +222,7 @@ const GameHud = ({ gameState, onSaveGame, onExportGame, onResetGame, onExitGame,
                                         {`Người chiến thắng: ${getPlayerName(gameState.currentPlayer)}`}
                                     </div>
                                     <p className="text-gray-600 text-base italic mt-2 text-center">
-                                        Bấm <b>"Chơi lại"</b> để tiếp tục
+                                        Bấm <b>"Chơi lại"</b> ở Menu để tiếp tục
                                     </p>
                                 </>
                             )}

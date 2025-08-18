@@ -187,7 +187,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }, [mode, settings])
 
-    // Check game end
+    //kết thúc game
     useEffect(() => {
         if (isGameOver(gameState.piles) && gameState.gameStatus === "playing") {
             setGameState((prev) => ({
@@ -219,6 +219,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         }
     }, [gameState.currentPlayer, gameState.mode, gameState.gameStatus, generateHint]);
 
+    //xử lý lượt đi tự động khi hết thời gian đếm ngược
     const makePlayerMoveAutomatically = useCallback(async () => {
         console.log("makePlayerMoveAutomatically called");
         if (gameState.gameStatus !== "playing" || gameState.isAnimating) return;
@@ -247,7 +248,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
     //đánh dấu có dùng gợi ý để khi chuyển lượt rồi trừ
 
     const markHintAsUsed = useCallback(() => {
-        console.log('trừ lượt :_)) lỗi thấy mẹ luôn')
+        console.log('trừ lượt gợi ý')
         setHasUsedHintThisTurn(true)
     }, []);
 
@@ -278,6 +279,7 @@ export const useNimGame = (mode: GameMode, settings: GameSettings) => {
         setHasUsedHintThisTurn(true)
     }, [gameState.currentPlayer, gameState.mode]) //xem kĩ chỗ này, tại sao lại khong cần hasUsedHintThisTurn 
 
+    //reset đánh dấu dùng gợi ý
     useEffect(() => {
         // Reset cho lượt mới setHasUsedHintThisTurn 
         setHasUsedHintThisTurn(false);

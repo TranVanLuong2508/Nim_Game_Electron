@@ -11,9 +11,9 @@ const buttonVariants: Variants = {
         rotateX: 2,
         rotateY: 2,
         transition: {
-            type: "spring",
-            stiffness: 300,
-            damping: 20,
+            type: "spring", //animation theo kiểu lò xo
+            stiffness: 300, //độ cứng của lo xo
+            damping: 20, //giảm sốc
         },
     },
     tap: {
